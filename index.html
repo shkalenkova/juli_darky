@@ -80,7 +80,7 @@ img{max-width:100%;display:block}
 .hero{text-align:center;padding-bottom:28px}
 .badge{display:inline-block;background:var(--ink);color:#fff;font-weight:800;font-size:14px;letter-spacing:.12em;
   text-transform:uppercase;padding:6px 14px;border-radius:999px;transform:rotate(-2deg)}
-h1{font-family:var(--display);font-weight:800;font-size:clamp(40px,9vw,76px);line-height:1;margin:14px 0 6px;text-wrap:balance;
+h1{font-family:var(--display);font-weight:800;font-size:clamp(40px,9vw,76px);line-height:1;margin:14px 0 22px;text-wrap:balance;
   color:var(--ink);text-shadow:3px 3px 0 #fff}
 h1 .name{color:#fff;text-shadow:3px 3px 0 var(--ink),-1.5px -1.5px 0 var(--ink),1.5px -1.5px 0 var(--ink),-1.5px 1.5px 0 var(--ink)}
 .hero-cake{display:block;width:min(220px,56vw);margin:4px auto 0;padding:0;border:0;background:none;cursor:pointer;
@@ -90,6 +90,11 @@ h1 .name{color:#fff;text-shadow:3px 3px 0 var(--ink),-1.5px -1.5px 0 var(--ink),
 .hint{display:inline-block;margin:6px 0 14px;font-weight:800;font-size:15px;color:#fff;background:var(--ink);border-radius:999px;padding:4px 14px}
 .lead{max-width:34rem;margin:0 auto;font-size:18px;background:#fff;border:2.5px solid var(--ink);border-radius:18px;padding:10px 16px;box-shadow:4px 4px 0 var(--ink)}
 .lead b{color:var(--pink)}
+.intro{display:flex;flex-direction:column;gap:14px;align-items:center}
+.lead.game{display:flex;gap:12px;align-items:center;text-align:left;background:#FFF3C4;transform:rotate(-1deg)}
+.lead.game b{display:block;font-family:var(--display);font-size:20px;line-height:1.2}
+.gicon{flex:none;width:38px;animation:bob 3s ease-in-out infinite}
+.gicon svg{display:block;width:100%;height:auto}
 .counter{display:inline-flex;gap:8px;align-items:center;margin-top:18px;background:#fff;border:2.5px solid var(--ink);
   border-radius:999px;padding:6px 16px;font-weight:800;font-variant-numeric:tabular-nums;box-shadow:3px 3px 0 var(--ink)}
 .counter .dot{width:10px;height:10px;border-radius:50%;background:var(--teal)}
@@ -166,9 +171,10 @@ footer{text-align:center;margin-top:44px;font-weight:800;color:var(--ink)}
   <header class="hero">
     <span class="badge">Narozeninová přání</span>
     <h1>Dárky pro <span class="name">Julinku</span></h1>
-    <button type="button" class="hero-cake cakey" id="heroCake" aria-label="Zapal svíčku na dortu"></button>
-    <p class="hint" id="hint">Ťukni na dort a zapal svíčku!</p>
-    <p class="lead">Vyber si dárek a klikni na <b>„Daruju já“</b>. Dárek pak všem ostatním zešedne, aby se dárky neopakovaly.</p>
+    <div class="intro">
+      <p class="lead">Vyber si dárek a klikni na <b>„Daruju já“</b>. Dárek pak všem ostatním zešedne, aby se dárky neopakovaly.</p>
+      <p class="lead game"><span class="gicon" id="gameIcon"></span><span><b>A k tomu hra „Praskni balónek!“</b> Po celé stránce létají balónky. Ťukej na ně a zkus jich prasknout co nejvíc. Počítadlo najdeš vlevo dole.</span></p>
+    </div>
     <div class="counter" id="counter" hidden><span class="dot"></span><span id="counterText"></span></div>
   </header>
 
@@ -179,7 +185,7 @@ footer{text-align:center;margin-top:44px;font-weight:800;color:var(--ink)}
 
   <footer>Děkujeme! Julinka a maminka</footer>
 </div>
-<div class="score" id="score"><span id="scoreIcon"></span><span id="scoreText">Zkus prasknout balónky!</span></div>
+<div class="score" id="score"><span id="scoreIcon"></span><span id="scoreText">Praskni balónek!</span></div>
 <div class="toast" id="toast" role="status" hidden></div>
 
 <script>
@@ -326,7 +332,7 @@ let seed=11; const rnd=()=>{ seed=(seed*9301+49297)%233280; return seed/233280; 
 
 (function(){
   const party=document.getElementById("party");
-  const types=["h","s","n","c","s","h","n","s"];
+  const types=["h","s","n","s","h","n","s","h"];
   let html="", i=0;
   for(let row=0; row<6; row++) for(let col=0; col<6; col++){
     const t=types[i%types.length], c=COLS[(i*5+row)%6];
@@ -354,21 +360,12 @@ function confetti(x,y,n){
   }
 }
 
-/* ---------- Dort se svíčkou ---------- */
-(function(){
-  const cake=document.getElementById("heroCake"), hint=document.getElementById("hint");
-  cake.innerHTML=bigCake();
-  cake.addEventListener("click",()=>{
-    const lit=cake.classList.toggle("lit"); cake.classList.toggle("out",!lit);
-    hint.textContent = lit ? "Všechno nejlepší k 9. narozeninám, Julinko!" : "Fúúú! Ťukni znovu a zapal ji.";
-    if(lit){ const r=cake.getBoundingClientRect(); confetti(r.left+r.width/2, r.top+r.height*0.3, 40); }
-  });
-})();
 
 /* ---------- Hra: praskání balónků ---------- */
 (function(){
   const sky=document.getElementById("sky"), scoreEl=document.getElementById("score"), scoreText=document.getElementById("scoreText");
   document.getElementById("scoreIcon").innerHTML=balloonSVG("#E81E78");
+  document.getElementById("gameIcon").innerHTML=balloonSVG("#E81E78");
   let score=0;
   const N = innerWidth<520 ? 9 : 14;
   for(let i=0;i<N;i++){
