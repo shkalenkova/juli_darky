@@ -1,0 +1,515 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Přání pro Julinku</title>
+<meta name="description" content="Seznam dárků k narozeninám Julinky">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@500;700;800&display=swap">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cellipse cx='32' cy='26' rx='18' ry='22' fill='%23E81E78'/%3E%3Cpath d='M29 47h6l-3 5z' fill='%23E81E78'/%3E%3Cpath d='M32 52c-3 4 3 7 0 11' stroke='%233A0A2C' stroke-width='2' fill='none'/%3E%3C/svg%3E">
+<!-- ============================================================
+     НАСТРОЙКА: вставьте между кавычками адрес скрипта из Google-таблицы
+     Юленьки (он заканчивается на /exec). Пока адрес пустой, сайт
+     работает в ознакомительном режиме и ничего не сохраняет.
+     ============================================================ -->
+<script>
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxsPQL53JvO5exx436GXgwChJPciXJZ6duCS34uNQFUnkwp4DLgu4fX1Bcvx4QqXwMxeQ/exec";
+</script>
+<style>
+/* Layout: bubblegum-pink page, balloons rising through the background to pop, a grid of white gift cards; a chosen gift turns grey for everyone */
+:root{
+  --bg:#FF9AC8; --paper:#FFFFFF; --ink:#3A0A2C; --soft:#6E1F55;
+  --pink:#E81E78; --violet:#8B5CF6; --teal:#0FA597; --blue:#2D7FF9; --yellow:#FFD23F; --orange:#FF7A1A;
+  --taken:#F1E6EC; --taken-ink:#A08A97;
+  --display:"Baloo 2","Nunito",system-ui,sans-serif;
+  --body:"Nunito",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{background:var(--bg)}
+body{margin:0;min-height:100vh;font-family:var(--body);color:var(--ink);font-size:17px;line-height:1.5;
+  background:
+    radial-gradient(circle at 12% 18%, rgba(255,255,255,.6) 0 3px, transparent 4px) 0 0/120px 120px,
+    radial-gradient(circle at 70% 60%, rgba(255,210,63,.75) 0 3px, transparent 4px) 0 0/150px 150px,
+    radial-gradient(circle at 40% 80%, rgba(139,92,246,.35) 0 3px, transparent 4px) 0 0/170px 170px,
+    var(--bg);
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+img{max-width:100%;display:block}
+.wrap{position:relative;z-index:1;max-width:980px;margin:0 auto;padding-block:36px 90px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* Layers behind the content: scattered decorations and the rising balloons game */
+#party,#sky{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.wrap,.hero,.grid,footer{pointer-events:none}
+.card,.hero>*,.empty,footer>*{pointer-events:auto}
+.deco{position:absolute;pointer-events:auto}
+.deco svg{display:block;width:100%;height:auto;overflow:visible;transition:transform .35s cubic-bezier(.3,1.6,.5,1)}
+.deco.h{animation:beat 1.8s ease-in-out infinite}
+.deco.s{animation:twinkle 3s ease-in-out infinite}
+.deco.n{animation:bob 4.2s ease-in-out infinite}
+.deco.c{animation:wiggle 3.4s ease-in-out infinite;cursor:pointer}
+.deco.h:hover svg{transform:scale(1.4)}
+.deco.s:hover svg{transform:rotate(180deg) scale(1.3)}
+.deco.n:hover svg,.deco.c:hover svg{transform:scale(1.2) rotate(-8deg)}
+@keyframes beat{0%,100%{transform:scale(1)}15%{transform:scale(1.15)}30%{transform:scale(1)}45%{transform:scale(1.1)}}
+@keyframes twinkle{0%,100%{transform:rotate(0) scale(1);opacity:1}50%{transform:rotate(20deg) scale(.8);opacity:.7}}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(-8deg)}50%{transform:translateY(-12px) rotate(8deg) scale(1.08)}}
+@keyframes wiggle{0%,100%{transform:rotate(-5deg)}50%{transform:translateY(-5px) rotate(5deg)}}
+
+.rise{position:absolute;bottom:-150px;pointer-events:auto;cursor:pointer;animation:rise linear infinite;touch-action:manipulation}
+.rise svg{display:block;width:100%;height:auto;overflow:visible;animation:sway 3s ease-in-out infinite alternate;transition:transform .2s}
+.rise:hover svg{transform:scale(1.12)}
+.rise.popped{visibility:hidden}
+@keyframes rise{from{transform:translateY(0)}to{transform:translateY(calc(-100vh - 200px))}}
+@keyframes sway{from{rotate:-7deg}to{rotate:7deg}}
+.popword{position:fixed;z-index:7;pointer-events:none;font-family:var(--display);font-weight:800;font-size:26px;color:#fff;
+  text-shadow:2px 2px 0 var(--ink),-1px -1px 0 var(--ink),1px -1px 0 var(--ink),-1px 1px 0 var(--ink);transform:translate(-50%,-50%)}
+.confetti{position:fixed;width:10px;height:14px;border-radius:2px;pointer-events:none;z-index:6}
+
+.score{position:fixed;z-index:4;left:max(14px,env(safe-area-inset-left,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));
+  display:flex;align-items:center;gap:8px;background:#fff;border:2.5px solid var(--ink);border-radius:999px;padding:6px 14px 6px 8px;
+  font-weight:800;font-size:15px;box-shadow:3px 3px 0 var(--ink);font-variant-numeric:tabular-nums}
+.score svg{width:20px;height:auto}
+.score.bump{animation:bump .35s}
+@keyframes bump{50%{transform:scale(1.15)}}
+
+/* Header */
+.hero{text-align:center;padding-bottom:28px}
+.badge{display:inline-block;background:var(--ink);color:#fff;font-weight:800;font-size:14px;letter-spacing:.12em;
+  text-transform:uppercase;padding:6px 14px;border-radius:999px;transform:rotate(-2deg)}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(40px,9vw,76px);line-height:1;margin:14px 0 6px;text-wrap:balance;
+  color:var(--ink);text-shadow:3px 3px 0 #fff}
+h1 .name{color:#fff;text-shadow:3px 3px 0 var(--ink),-1.5px -1.5px 0 var(--ink),1.5px -1.5px 0 var(--ink),-1.5px 1.5px 0 var(--ink)}
+.hero-cake{display:block;width:min(220px,56vw);margin:4px auto 0;padding:0;border:0;background:none;cursor:pointer;
+  border-radius:24px;animation:wiggle 4s ease-in-out infinite;font:inherit}
+.hero-cake svg{display:block;width:100%;height:auto;overflow:visible}
+.hero-cake:focus-visible{outline:3px solid var(--blue);outline-offset:4px}
+.hint{display:inline-block;margin:6px 0 14px;font-weight:800;font-size:15px;color:#fff;background:var(--ink);border-radius:999px;padding:4px 14px}
+.lead{max-width:34rem;margin:0 auto;font-size:18px;background:#fff;border:2.5px solid var(--ink);border-radius:18px;padding:10px 16px;box-shadow:4px 4px 0 var(--ink)}
+.lead b{color:var(--pink)}
+.counter{display:inline-flex;gap:8px;align-items:center;margin-top:18px;background:#fff;border:2.5px solid var(--ink);
+  border-radius:999px;padding:6px 16px;font-weight:800;font-variant-numeric:tabular-nums;box-shadow:3px 3px 0 var(--ink)}
+.counter .dot{width:10px;height:10px;border-radius:50%;background:var(--teal)}
+
+/* Flames light up on hover or tap */
+.flame{transform:scale(0);transform-box:fill-box;transform-origin:50% 100%;transition:transform .3s cubic-bezier(.3,1.6,.5,1)}
+.cakey:hover .flame,.cakey.lit .flame{transform:scale(1)}
+.cakey.out:hover .flame{transform:scale(0)}
+.fl{transform-box:fill-box;transform-origin:50% 100%;animation:flicker .16s ease-in-out infinite alternate}
+@keyframes flicker{from{transform:scaleY(1) skewX(-4deg)}to{transform:scaleY(1.18) skewX(4deg)}}
+.glow{opacity:.5}
+
+.toast{position:fixed;left:50%;bottom:calc(70px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);
+  background:var(--ink);color:#fff;padding:12px 18px;border-radius:14px;font-weight:700;max-width:calc(100% - 32px);text-align:center;z-index:8}
+
+/* Gift cards */
+.grid{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:22px}
+.card{position:relative;background:var(--paper);border:2.5px solid var(--ink);border-radius:22px;overflow:hidden;
+  box-shadow:5px 5px 0 var(--ink);display:flex;flex-direction:column;transition:transform .2s, box-shadow .2s, background .3s}
+.card:nth-child(4n+1){--c:var(--pink)} .card:nth-child(4n+2){--c:var(--violet)}
+.card:nth-child(4n+3){--c:var(--teal)} .card:nth-child(4n+4){--c:var(--blue)}
+.card:not(.taken):hover{transform:translate(-2px,-2px) rotate(-.6deg);box-shadow:7px 7px 0 var(--ink)}
+.pic{position:relative;aspect-ratio:1/1;max-width:100%;background:#fff;border-bottom:2.5px solid var(--ink)}
+.pic img{width:100%;height:100%;object-fit:cover;transition:filter .4s,opacity .4s}
+.body{padding:14px 16px 16px;display:flex;flex-direction:column;gap:12px;flex:1}
+.body h2{font-family:var(--display);font-weight:600;font-size:21px;line-height:1.2;margin:0;overflow-wrap:anywhere;flex:1}
+button{font:inherit;font-weight:800;cursor:pointer;border-radius:999px;border:2.5px solid var(--ink);padding:10px 16px;font-size:16px}
+button:focus-visible{outline:3px solid var(--blue);outline-offset:3px}
+.give{background:var(--c,var(--pink));color:#fff;box-shadow:3px 3px 0 var(--ink);width:100%}
+.give:hover{filter:brightness(1.08)}
+.give:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+.plain{background:#fff;color:var(--ink)}
+.textbtn{background:none;border:0;padding:2px 0;text-decoration:underline;font-weight:700;color:var(--soft);font-size:15px}
+button[disabled]{opacity:.55;cursor:wait}
+.ask{display:flex;flex-direction:column;gap:8px}
+.ask p{margin:0;font-weight:700}
+.ask .row{display:flex;gap:8px}
+.ask .row button{flex:1;padding:9px 10px}
+.card.taken{background:var(--taken);border-color:var(--taken-ink);box-shadow:5px 5px 0 var(--taken-ink)}
+.card.taken .pic{border-color:var(--taken-ink)}
+.card.taken .pic img{filter:grayscale(1);opacity:.45}
+.card.taken h2{color:var(--taken-ink)}
+.stamp{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotate(-12deg);background:rgba(255,255,255,.9);
+  border:3px solid var(--taken-ink);color:var(--taken-ink);font-family:var(--display);font-weight:800;font-size:20px;
+  text-transform:uppercase;letter-spacing:.06em;padding:4px 14px;border-radius:10px;white-space:nowrap}
+.state{font-weight:800;color:var(--taken-ink)}
+.card.mine{background:#fff;border-color:var(--teal);box-shadow:5px 5px 0 var(--teal)}
+.card.mine .pic{border-color:var(--teal)}
+.card.mine .pic img{filter:none;opacity:1}
+.card.mine h2{color:var(--ink)}
+.card.mine .stamp{border-color:var(--teal);color:var(--teal)}
+.card.mine .state{color:var(--teal)}
+.skeleton{aspect-ratio:3/4;border-radius:22px;border:2.5px dashed rgba(58,10,44,.35);background:rgba(255,255,255,.35)}
+.empty{text-align:center;font-weight:700;padding:30px 10px}
+footer{text-align:center;margin-top:44px;font-weight:800;color:var(--ink)}
+
+@media (max-width:520px){
+  .grid{grid-template-columns:1fr 1fr;gap:14px}
+  .body{padding:10px 12px 12px;gap:10px}
+  .body h2{font-size:17px}
+  button{font-size:15px;padding:9px 10px}
+  .stamp{font-size:15px;padding:3px 10px}
+  .score{font-size:13px;padding:4px 10px 4px 6px}
+  .score svg{width:16px}
+}
+@media (max-width:340px){.grid{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="party" aria-hidden="true"></div>
+<div id="sky" aria-hidden="true"></div>
+<div class="wrap">
+  <header class="hero">
+    <span class="badge">Narozeninová přání</span>
+    <h1>Dárky pro <span class="name">Julinku</span></h1>
+    <button type="button" class="hero-cake cakey" id="heroCake" aria-label="Zapal svíčku na dortu"></button>
+    <p class="hint" id="hint">Ťukni na dort a zapal svíčku!</p>
+    <p class="lead">Vyber si dárek a klikni na <b>„Daruju já“</b>. Dárek pak všem ostatním zešedne, aby se dárky neopakovaly.</p>
+    <div class="counter" id="counter" hidden><span class="dot"></span><span id="counterText"></span></div>
+  </header>
+
+  <ul class="grid" id="grid" aria-live="polite">
+    <li class="skeleton"></li><li class="skeleton"></li><li class="skeleton"></li><li class="skeleton"></li>
+  </ul>
+  <p class="empty" id="empty" hidden></p>
+
+  <footer>Děkujeme! Julinka a maminka</footer>
+</div>
+<div class="score" id="score"><span id="scoreIcon"></span><span id="scoreText">Zkus prasknout balónky!</span></div>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+const INK="#3A0A2C";
+const COLS=["#E81E78","#8B5CF6","#0FA597","#2D7FF9","#FFD23F","#FF7A1A"];
+const svg = s => "data:image/svg+xml;charset=utf-8," + encodeURIComponent(s);
+const S=`stroke="${INK}" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"`;
+const sq=(bg,body)=>svg(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><rect width="400" height="400" fill="${bg}"/>${body}</svg>`);
+const spark=(x,y,c)=>`<path d="M${x} ${y-14} L${x+4} ${y-4} L${x+14} ${y} L${x+4} ${y+4} L${x} ${y+14} L${x-4} ${y+4} L${x-14} ${y} L${x-4} ${y-4} Z" fill="${c}" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>`;
+
+/* ---------- Obrázky dárků ---------- */
+const ART = {
+  gumicky: sq("#FFE0F0",
+    Array.from({length:16},(_,i)=>{const a=i/16*Math.PI*2, x=200+Math.cos(a)*100, y=185+Math.sin(a)*100;
+      return `<ellipse cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" rx="26" ry="13" fill="none" stroke="${COLS[i%6]}" stroke-width="10" transform="rotate(${(a*180/Math.PI+90).toFixed(1)} ${x.toFixed(1)} ${y.toFixed(1)})"/>`;}).join("")
+    + [[70,330,0],[120,350,2],[290,340,3],[335,318,1]].map(([x,y,c])=>`<ellipse cx="${x}" cy="${y}" rx="22" ry="10" fill="none" stroke="${COLS[c]}" stroke-width="7"/>`).join("")
+    + spark(200,185,"#FFD23F")),
+  lego: sq("#E0F0FF", (()=>{const b=(x,y,w,c)=>`${Array.from({length:w},(_,i)=>`<rect x="${x+12+i*44}" y="${y-14}" width="26" height="16" rx="4" fill="${c}" ${S}/>`).join("")}<rect x="${x}" y="${y}" width="${w*44+6}" height="62" rx="8" fill="${c}" ${S}/>`;
+    return b(70,262,6,"#E81E78")+b(114,186,4,"#FFD23F")+b(92,110,2,"#2D7FF9")+b(224,110,2,"#0FA597");})()),
+  kniha: sq("#FFF0C8", `<g transform="rotate(-8 200 210)"><rect x="100" y="80" width="200" height="250" rx="14" fill="#E81E78" ${S}/>
+    <rect x="100" y="80" width="30" height="250" rx="8" fill="#B8155D" ${S}/>
+    <path d="M215 175 c-28 -40 -80 -5 -40 40 l40 38 l40 -38 c40 -45 -12 -80 -40 -40z" fill="#fff" ${S}/>
+    <path d="M262 80 v70 l14 -12 l14 12 v-70" fill="#FFD23F" ${S}/></g>${spark(330,95,"#8B5CF6")}${spark(70,320,"#0FA597")}`),
+  ramecek: sq("#E6FBF6", `<g transform="rotate(4 200 200)"><rect x="70" y="90" width="260" height="220" rx="18" fill="#8B5CF6" ${S}/>
+    <rect x="98" y="118" width="204" height="164" rx="8" fill="#CDE8FF" ${S}/>
+    <circle cx="160" cy="180" r="24" fill="#FFD7B5" ${S}/><path d="M118 282 q42 -80 84 0z" fill="#E81E78" ${S}/>
+    <circle cx="245" cy="196" r="20" fill="#FFD7B5" ${S}/><path d="M210 282 q35 -66 70 0z" fill="#0FA597" ${S}/>
+    <path d="M202 140 c-8 -12 -26 -2 -14 12 l14 12 l14 -12 c12 -14 -6 -24 -14 -12z" fill="#E81E78" stroke="${INK}" stroke-width="3"/></g>`),
+  kosmetika: sq("#FFE6F2", `<rect x="80" y="170" width="56" height="150" rx="14" fill="#fff" ${S}/><rect x="86" y="96" width="44" height="80" rx="12" fill="#E81E78" ${S}/>
+    <rect x="96" y="210" width="24" height="70" rx="8" fill="#FF8FC7"/>
+    <rect x="170" y="200" width="80" height="120" rx="18" fill="#8B5CF6" ${S}/><rect x="190" y="150" width="40" height="54" rx="8" fill="${INK}"/>
+    <ellipse cx="200" cy="244" rx="12" ry="22" fill="#fff" opacity=".45"/>
+    <circle cx="310" cy="230" r="58" fill="#FFD23F" ${S}/><circle cx="310" cy="230" r="38" fill="#E9F6FF" ${S}/>
+    <path d="M292 214 l14 -10 M290 232 l28 -22" stroke="#fff" stroke-width="6" stroke-linecap="round"/>${spark(330,110,"#0FA597")}`),
+  jednorozec: sq("#F1E8FF", `<circle cx="140" cy="140" r="34" fill="#FF8FC7" ${S}/><circle cx="118" cy="190" r="34" fill="#8B5CF6" ${S}/><circle cx="130" cy="246" r="32" fill="#2D7FF9" ${S}/>
+    <path d="M150 124 c-6 -36 14 -48 30 -40" fill="#fff" ${S}/><path d="M290 124 c14 -34 -4 -48 -24 -40" fill="#fff" ${S}/>
+    <ellipse cx="220" cy="210" rx="112" ry="100" fill="#fff" ${S}/>
+    <path d="M198 116 L220 30 L242 116 Z" fill="#FFD23F" ${S}/>
+    <path d="M206 92 l30 -8 M212 66 l20 -6" stroke="${INK}" stroke-width="3.5" stroke-linecap="round"/>
+    <path d="M176 196 q16 14 32 0 M246 196 q16 14 32 0" fill="none" ${S}/>
+    <circle cx="172" cy="236" r="16" fill="#FF8FC7"/><circle cx="290" cy="236" r="16" fill="#FF8FC7"/>
+    <path d="M214 248 q12 10 24 0" fill="none" ${S}/>${spark(330,90,"#E81E78")}${spark(70,330,"#FFD23F")}`),
+  penal: sq("#E0F7FF", [["#E81E78",-26],["#FFD23F",-12],["#0FA597",2],["#8B5CF6",16],["#FF7A1A",30]].map(([c,r],i)=>
+      `<g transform="rotate(${r} 200 300)"><rect x="${188}" y="70" width="24" height="200" rx="6" fill="#fff" ${S}/><rect x="188" y="70" width="24" height="60" rx="6" fill="${c}" ${S}/><circle cx="200" cy="150" r="5" fill="${c}"/></g>`).join("")
+    + `<rect x="60" y="210" width="280" height="120" rx="40" fill="#E81E78" ${S}/>
+    <path d="M90 236 h220" stroke="#FFD23F" stroke-width="8" stroke-linecap="round"/><path d="M90 236 h220" stroke="${INK}" stroke-width="3" stroke-dasharray="6 6"/>
+    <rect x="300" y="226" width="20" height="30" rx="6" fill="#FFD23F" ${S}/>
+    <path d="M200 300 c-10 -14 -30 -2 -16 14 l16 14 l16 -14 c14 -16 -6 -28 -16 -14z" fill="#fff" stroke="${INK}" stroke-width="3"/>`),
+  kabelka: sq("#FFF3D6", `<path d="M140 170 q0 -90 60 -90 q60 0 60 90" fill="none" stroke="${INK}" stroke-width="14" stroke-linecap="round"/>
+    <path d="M140 170 q0 -90 60 -90 q60 0 60 90" fill="none" stroke="#FFD23F" stroke-width="7" stroke-linecap="round"/>
+    <path d="M90 170 h220 l-24 160 h-172 z" fill="#E81E78" ${S}/>
+    <path d="M90 170 h220 l-10 64 q-100 40 -200 0 z" fill="#FF8FC7" ${S}/>
+    <path d="M200 236 c-12 -18 -40 -4 -22 18 l22 20 l22 -20 c18 -22 -10 -36 -22 -18z" fill="#FFD23F" ${S}/>${spark(330,110,"#8B5CF6")}`),
+  antistres: sq("#E8FFE8", `<rect x="70" y="70" width="260" height="260" rx="60" fill="#fff" ${S}/>`
+    + [0,1,2,3].map(r=>[0,1,2,3].map(c=>{const col=["#E81E78","#FFD23F","#0FA597","#8B5CF6"][r];
+      return `<circle cx="${125+c*50}" cy="${125+r*50}" r="19" fill="${col}" ${S}/><circle cx="${119+c*50}" cy="${119+r*50}" r="5" fill="#fff" opacity=".6"/>`;}).join("")).join("")),
+  omalovanky: sq("#FFF0E0", `<g transform="rotate(-5 200 200)"><rect x="70" y="70" width="250" height="270" rx="12" fill="#fff" ${S}/>
+    <path d="M110 300 l50 -110 l50 110 z" fill="#FFD23F" ${S}/><circle cx="240" cy="150" r="44" fill="#fff" ${S}/>
+    <path d="M200 300 q40 -90 90 0 z" fill="#fff" ${S}/><path d="M110 120 h60 M110 140 h40" stroke="${INK}" stroke-width="5" stroke-linecap="round"/>
+    <text x="160" y="282" font-family="Arial, sans-serif" font-weight="700" font-size="30" fill="${INK}" text-anchor="middle">1</text>
+    <text x="240" y="162" font-family="Arial, sans-serif" font-weight="700" font-size="30" fill="${INK}" text-anchor="middle">2</text>
+    <text x="246" y="288" font-family="Arial, sans-serif" font-weight="700" font-size="30" fill="${INK}" text-anchor="middle">3</text></g>
+    <g transform="rotate(35 320 300)"><rect x="300" y="200" width="30" height="150" rx="6" fill="#E81E78" ${S}/><path d="M300 350 l15 34 l15 -34z" fill="#FFD7B5" ${S}/></g>`),
+  fixky: sq("#E8F0FF", COLS.map((c,i)=>`<g transform="rotate(${-40+i*16} 200 340)"><rect x="184" y="90" width="32" height="200" rx="10" fill="#fff" ${S}/>
+    <rect x="184" y="60" width="32" height="70" rx="10" fill="${c}" ${S}/><rect x="184" y="250" width="32" height="12" fill="${c}"/></g>`).join("")
+    + `<rect x="140" y="300" width="120" height="60" rx="14" fill="#FFD23F" ${S}/>`),
+  mikrofon: sq("#FFE8F5", `<g transform="rotate(-20 200 220)"><rect x="176" y="190" width="48" height="160" rx="22" fill="#8B5CF6" ${S}/>
+    <rect x="166" y="180" width="68" height="26" rx="10" fill="#FFD23F" ${S}/>
+    <circle cx="200" cy="130" r="66" fill="#E3E3EE" ${S}/>
+    <path d="M150 104 q50 -30 100 0 M140 132 h120 M150 160 q50 30 100 0 M200 66 v128 M168 72 q-14 58 0 116 M232 72 q14 58 0 116" fill="none" stroke="${INK}" stroke-width="3"/>
+    <circle cx="200" cy="260" r="8" fill="#0FA597"/></g>
+    <path d="M300 90 v60 a14 12 0 1 1 -6 -10 v-44 l40 -10 v50 a14 12 0 1 1 -6 -10 v-38z" fill="#E81E78" stroke="${INK}" stroke-width="3"/>
+    <path d="M70 250 v50 a14 12 0 1 1 -6 -10 v-40 z" fill="#0FA597" stroke="${INK}" stroke-width="3"/>`),
+  darek: sq("#FFF3C4", `<rect x="95" y="170" width="210" height="160" rx="10" fill="#8B5CF6" ${S}/>
+    <rect x="80" y="130" width="240" height="50" rx="10" fill="#A78BFA" ${S}/>
+    <rect x="185" y="130" width="30" height="200" fill="#FFD23F" ${S}/>
+    <path d="M200 128 c-50 -60 -95 -10 -50 5 z M200 128 c50 -60 95 -10 50 5 z" fill="#E81E78" ${S}/>`)
+};
+
+/* Obrázek se vybere podle sloupce Foto, jinak podle názvu dárku */
+const GUESS = [
+  ["antistres",/antistres|pop.?it|mačkac/], ["gumicky",/gumičk|gumick|náramk|naramk/], ["lego",/lego|stavebn/],
+  ["omalovanky",/omalov|čísl|cisl/], ["kniha",/knih/], ["ramecek",/rámeč|ramec|fotk/], ["kosmetika",/kosmet|lak|lesk/],
+  ["jednorozec",/jednoro|plyš|plys/], ["penal",/penál|penal|gelov/], ["kabelka",/kabelk|tašk|task|batoh/],
+  ["mikrofon",/mikrofon|karaoke/], ["fixky",/fix/]
+];
+function imageFor(g){
+  const key=(g.foto||"").toLowerCase().replace(/\.(jpe?g|png|webp|gif)$/,"").trim();
+  if(ART[key]) return ART[key];
+  const n=(g.name||"").toLowerCase();
+  for(const [k,re] of GUESS) if(re.test(n)) return ART[k];
+  return ART.darek;
+}
+
+/* ---------- Dekorace: srdíčka, hvězdičky, devítky, dortíky ---------- */
+function flame(x,y){
+  return `<g class="flame"><ellipse class="glow" cx="${x}" cy="${y-11}" rx="11" ry="13" fill="#FFE27A"/>
+    <g class="fl"><path d="M${x} ${y-22} q8 10 0 21 q-8 -11 0 -21z" fill="#FF7A1A" stroke="${INK}" stroke-width="2"/>
+    <path d="M${x} ${y-13} q3.5 5 0 11 q-3.5 -6 0 -11z" fill="#FFF3C4"/></g></g>`;
+}
+function drips(x,y,w,c){
+  let d=`M${x} ${y} h${w} v10`; const n=6, s=w/n;
+  for(let i=0;i<n;i++){ d+=` q${-s/4} ${i%2?14:8} ${-s/2} 0 q${-s/4} -6 ${-s/2} 0`; }
+  return `<path d="${d} z" fill="${c}" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>`;
+}
+function sprinkles(x,y,w,h,seed){
+  const cols=["#2D7FF9","#0FA597","#FF7A1A","#FFD23F","#fff"]; let s="";
+  for(let i=0;i<7;i++){ const px=x+((seed*37+i*53)%w), py=y+((seed*17+i*29)%h);
+    s+=`<rect x="${px}" y="${py}" width="7" height="3" rx="1.5" fill="${cols[(i+seed)%5]}" transform="rotate(${(i*47)%180} ${px} ${py})"/>`; }
+  return s;
+}
+function smallCake(c1,c2,seed){
+  const candles=[48,72].map(x=>`<rect x="${x-4}" y="24" width="8" height="24" rx="3" fill="#fff" stroke="${INK}" stroke-width="2.5"/>
+    <path d="M${x-4} 33 l8 -4 M${x-4} 42 l8 -4" stroke="${c1}" stroke-width="2.5"/>
+    <path d="M${x} 24 v-4" stroke="${INK}" stroke-width="2"/>${flame(x,20)}`).join("");
+  return `<svg viewBox="0 0 120 140"><ellipse cx="60" cy="128" rx="56" ry="8" fill="#fff" stroke="${INK}" stroke-width="3"/>
+    <rect x="12" y="80" width="96" height="46" rx="10" fill="${c1}" stroke="${INK}" stroke-width="3"/>${drips(12,80,96,"#fff")}
+    <rect x="26" y="48" width="68" height="34" rx="8" fill="${c2}" stroke="${INK}" stroke-width="3"/>${drips(26,48,68,"#FFF3C4")}
+    ${sprinkles(20,100,80,20,seed)}${candles}</svg>`;
+}
+function bigCake(){
+  return `<svg viewBox="0 0 220 200"><ellipse cx="110" cy="188" rx="104" ry="10" fill="#fff" stroke="${INK}" stroke-width="3.5"/>
+    <rect x="20" y="128" width="180" height="58" rx="14" fill="#8B5CF6" stroke="${INK}" stroke-width="3.5"/>${drips(20,128,180,"#fff")}
+    <rect x="44" y="92" width="132" height="40" rx="10" fill="#E81E78" stroke="${INK}" stroke-width="3.5"/>${drips(44,92,132,"#FFF3C4")}
+    ${sprinkles(32,150,156,26,3)}${sprinkles(54,108,112,16,5)}
+    <circle cx="66" cy="96" r="7" fill="#FFD23F" stroke="${INK}" stroke-width="2.5"/><circle cx="154" cy="96" r="7" fill="#FFD23F" stroke="${INK}" stroke-width="2.5"/>
+    <text x="110" y="94" text-anchor="middle" font-family="Baloo 2, Nunito, Arial, sans-serif" font-weight="800" font-size="84"
+      fill="#2D7FF9" stroke="${INK}" stroke-width="4" paint-order="stroke" stroke-linejoin="round">9</text>
+    <path d="M112 36 v-8" stroke="${INK}" stroke-width="2.5"/>${flame(112,28)}</svg>`;
+}
+function balloonSVG(c){
+  return `<svg viewBox="0 0 60 110"><path d="M30 78 c-4 10 6 14 0 30" stroke="${INK}" stroke-width="2" fill="none"/>
+    <ellipse cx="30" cy="38" rx="26" ry="34" fill="${c}" stroke="${INK}" stroke-width="3"/>
+    <path d="M25 72 h10 l-5 7 z" fill="${c}" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/>
+    <ellipse cx="20" cy="24" rx="6" ry="10" fill="#fff" opacity=".45"/></svg>`;
+}
+const heartSVG=c=>`<svg viewBox="0 0 60 56"><path d="M30 50 L8 28 C-4 14 14 -4 30 14 C46 -4 64 14 52 28 Z" fill="${c}" stroke="${INK}" stroke-width="3.5" stroke-linejoin="round"/><ellipse cx="18" cy="18" rx="5" ry="7" fill="#fff" opacity=".5"/></svg>`;
+const starSVG=c=>`<svg viewBox="0 0 60 60"><path d="M30 4 L37 22 L56 23 L41 35 L46 54 L30 43 L14 54 L19 35 L4 23 L23 22 Z" fill="${c}" stroke="${INK}" stroke-width="3.5" stroke-linejoin="round"/></svg>`;
+const nineSVG=c=>`<svg viewBox="0 0 60 80"><text x="30" y="64" text-anchor="middle" font-family="Baloo 2, Nunito, Arial, sans-serif" font-weight="800" font-size="78"
+    fill="${c}" stroke="${INK}" stroke-width="6" paint-order="stroke" stroke-linejoin="round">9</text></svg>`;
+
+const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+let seed=11; const rnd=()=>{ seed=(seed*9301+49297)%233280; return seed/233280; };
+
+(function(){
+  const party=document.getElementById("party");
+  const types=["h","s","n","c","s","h","n","s"];
+  let html="", i=0;
+  for(let row=0; row<6; row++) for(let col=0; col<6; col++){
+    const t=types[i%types.length], c=COLS[(i*5+row)%6];
+    const left=col*16.6+rnd()*10, top=row*16.6+rnd()*9;
+    const size = t==="h"?26+rnd()*16 : t==="s"?22+rnd()*16 : t==="n"?34+rnd()*14 : 44+rnd()*16;
+    const body = t==="h"?heartSVG(c) : t==="s"?starSVG(c) : t==="n"?nineSVG(c) : smallCake(c, COLS[(i+2)%6], i);
+    html+=`<div class="deco ${t}${t==="c"?" cakey":""}" style="left:${left.toFixed(1)}%;top:${top.toFixed(1)}%;width:${size.toFixed(0)}px;animation-delay:${(-rnd()*4).toFixed(2)}s">${body}</div>`;
+    i++;
+  }
+  party.innerHTML=html;
+  party.addEventListener("click",e=>{ const c=e.target.closest(".deco.c"); if(c) c.classList.toggle("lit"); });
+})();
+
+/* ---------- Konfety ---------- */
+function confetti(x,y,n){
+  if(reduce) return;
+  for(let k=0;k<n;k++){
+    const p=document.createElement("span"); p.className="confetti";
+    p.style.left=x+"px"; p.style.top=y+"px"; p.style.background=COLS[k%6];
+    document.body.append(p);
+    const a=Math.random()*Math.PI*2, d=50+Math.random()*(n>20?160:90);
+    p.animate([{transform:"translate(0,0) rotate(0)",opacity:1},
+               {transform:`translate(${Math.cos(a)*d}px,${Math.sin(a)*d+100}px) rotate(${Math.random()*720}deg)`,opacity:0}],
+              {duration:900+Math.random()*600,easing:"cubic-bezier(.2,.7,.4,1)"}).onfinish=()=>p.remove();
+  }
+}
+
+/* ---------- Dort se svíčkou ---------- */
+(function(){
+  const cake=document.getElementById("heroCake"), hint=document.getElementById("hint");
+  cake.innerHTML=bigCake();
+  cake.addEventListener("click",()=>{
+    const lit=cake.classList.toggle("lit"); cake.classList.toggle("out",!lit);
+    hint.textContent = lit ? "Všechno nejlepší k 9. narozeninám, Julinko!" : "Fúúú! Ťukni znovu a zapal ji.";
+    if(lit){ const r=cake.getBoundingClientRect(); confetti(r.left+r.width/2, r.top+r.height*0.3, 40); }
+  });
+})();
+
+/* ---------- Hra: praskání balónků ---------- */
+(function(){
+  const sky=document.getElementById("sky"), scoreEl=document.getElementById("score"), scoreText=document.getElementById("scoreText");
+  document.getElementById("scoreIcon").innerHTML=balloonSVG("#E81E78");
+  let score=0;
+  const N = innerWidth<520 ? 9 : 14;
+  for(let i=0;i<N;i++){
+    const b=document.createElement("div"); b.className="rise";
+    const w=40+rnd()*24, dur=13+rnd()*11;
+    b.style.width=w.toFixed(0)+"px";
+    b.style.left=((i/N)*94+rnd()*4).toFixed(1)+"%";
+    if(reduce){ b.style.bottom="auto"; b.style.top=(5+rnd()*80).toFixed(1)+"%"; }
+    else { b.style.animationDuration=dur.toFixed(1)+"s"; b.style.animationDelay=(-rnd()*dur).toFixed(1)+"s"; }
+    b.innerHTML=balloonSVG(COLS[i%6]);
+    b.querySelector("svg").style.animationDelay=(-rnd()*3).toFixed(1)+"s";
+    b.addEventListener("animationiteration",e=>{ if(e.target===b) b.classList.remove("popped"); });
+    b.addEventListener("pointerdown",()=>{
+      if(b.classList.contains("popped")) return;
+      const r=b.getBoundingClientRect(), x=r.left+r.width/2, y=r.top+r.width*0.6;
+      b.classList.add("popped");
+      if(reduce) setTimeout(()=>b.classList.remove("popped"),3000);
+      confetti(x,y,14);
+      const w=document.createElement("span"); w.className="popword"; w.textContent="PUF!";
+      w.style.left=x+"px"; w.style.top=y+"px"; document.body.append(w);
+      w.animate([{transform:"translate(-50%,-50%) scale(.4)",opacity:1},{transform:"translate(-50%,-90%) scale(1.3)",opacity:0}],{duration:650}).onfinish=()=>w.remove();
+      score++;
+      scoreText.textContent=`Prasklé balónky: ${score}`;
+      scoreEl.classList.remove("bump"); void scoreEl.offsetWidth; scoreEl.classList.add("bump");
+      const msg={10:"Super, už 10 balónků!",25:"Páni, 25 balónků! Jsi mistr praskání!",50:"50 balónků! Balónkový rekord!",100:"100 balónků! Neuvěřitelné!"}[score];
+      if(msg) toast(msg);
+    });
+    sky.append(b);
+  }
+})();
+
+/* ---------- Data ---------- */
+const DEMO = !SCRIPT_URL;
+const DEMO_GIFTS = ["Sada na gumičkové náramky","LEGO","Kniha (podobnou na Valentýnku)","Fotku s tebou v rámečku","Kosmetiku",
+  "Jednorožčí plyšák","Penál do školy s barevnými gelovými perami","Kabelku","Antistresovou hračku","Těžké omalovánky s čísly",
+  "Větší sadu fixek","Bezdrátový karaoke mikrofon na zpívání"].map((name,i)=>({row:i+2,name,foto:"",reserved:false,mine:false}));
+
+let token="";
+try{ token=localStorage.getItem("julie-token")||""; }catch(e){}
+if(!token){
+  token=Array.from(crypto.getRandomValues(new Uint8Array(12)),b=>b.toString(16).padStart(2,"0")).join("");
+  try{ localStorage.setItem("julie-token",token); }catch(e){}
+}
+
+let gifts=[], askRow=null, busyRow=null, loaded=false;
+const grid=document.getElementById("grid"), emptyEl=document.getElementById("empty");
+
+async function api(params){
+  if(DEMO){
+    const p=params||{};
+    if(p.action){
+      const g=DEMO_GIFTS.find(x=>x.row===p.row);
+      if(p.action==="reserve"){ if(g.reserved) return {ok:false,error:"taken",gifts:DEMO_GIFTS}; g.reserved=true; g.mine=true; }
+      if(p.action==="cancel"&&g.mine){ g.reserved=false; g.mine=false; }
+    }
+    return {ok:true,gifts:DEMO_GIFTS.map(g=>({...g}))};
+  }
+  const u=new URL(SCRIPT_URL);
+  u.searchParams.set("token",token);
+  for(const [k,v] of Object.entries(params||{})) u.searchParams.set(k,v);
+  u.searchParams.set("t",Date.now());
+  const r=await fetch(u.toString(),{cache:"no-store"});
+  if(!r.ok) throw new Error("http "+r.status);
+  return r.json();
+}
+
+function toast(msg){
+  const t=document.getElementById("toast"); t.textContent=msg; t.hidden=false;
+  clearTimeout(toast.h); toast.h=setTimeout(()=>t.hidden=true,3500);
+}
+
+function render(){
+  grid.replaceChildren();
+  const free=gifts.filter(g=>!g.reserved).length;
+  document.getElementById("counter").hidden=!gifts.length;
+  document.getElementById("counterText").textContent=`Volné dárky: ${free} z ${gifts.length}`;
+  emptyEl.hidden = !(loaded && !gifts.length);
+  if(loaded && !gifts.length) emptyEl.textContent="Seznam dárků se brzy objeví.";
+
+  for(const g of gifts){
+    const li=document.createElement("li");
+    li.className="card"+(g.reserved?" taken":"")+(g.mine?" mine":"");
+    const pic=document.createElement("div"); pic.className="pic";
+    const img=document.createElement("img"); img.src=imageFor(g); img.alt=g.name; img.loading="lazy";
+    pic.append(img);
+    if(g.reserved){
+      const st=document.createElement("span"); st.className="stamp"; st.textContent=g.mine?"Daruješ ty":"Zabráno"; pic.append(st);
+    }
+    li.append(pic);
+    const body=document.createElement("div"); body.className="body";
+    const h=document.createElement("h2"); h.textContent=g.name; body.append(h);
+    if(g.mine){
+      const s=document.createElement("span"); s.className="state"; s.textContent="Tenhle dárek daruješ ty. Děkujeme!"; body.append(s);
+      const c=document.createElement("button"); c.className="textbtn"; c.type="button"; c.textContent="Zrušit, rozmyslel(a) jsem si to";
+      c.disabled=busyRow===g.row; c.onclick=()=>act("cancel",g); body.append(c);
+    }else if(g.reserved){
+      const s=document.createElement("span"); s.className="state"; s.textContent="Tenhle dárek už někdo daruje."; body.append(s);
+    }else if(askRow===g.row){
+      const a=document.createElement("div"); a.className="ask";
+      const p=document.createElement("p"); p.textContent="Opravdu ho daruješ ty?";
+      const row=document.createElement("div"); row.className="row";
+      const y=document.createElement("button"); y.type="button"; y.className="give"; y.textContent="Ano"; y.disabled=busyRow===g.row;
+      y.onclick=()=>act("reserve",g);
+      const n=document.createElement("button"); n.type="button"; n.className="plain"; n.textContent="Zpět";
+      n.onclick=()=>{askRow=null;render();};
+      row.append(y,n); a.append(p,row); body.append(a);
+    }else{
+      const b=document.createElement("button"); b.type="button"; b.className="give"; b.textContent="Daruju já";
+      b.onclick=()=>{askRow=g.row;render();};
+      body.append(b);
+    }
+    li.append(body);
+    grid.append(li);
+  }
+}
+
+async function load(){
+  try{
+    const d=await api();
+    if(d.ok){ gifts=d.gifts; loaded=true; if(busyRow===null) render(); }
+  }catch(e){
+    if(!loaded){ grid.replaceChildren(); emptyEl.hidden=false; emptyEl.textContent="Seznam se nepodařilo načíst. Zkus prosím obnovit stránku."; }
+  }
+}
+
+async function act(action,g){
+  busyRow=g.row; render();
+  try{
+    const d=await api({action,row:g.row});
+    if(d.gifts) gifts=d.gifts;
+    if(!d.ok && d.error==="taken") toast("Jejda, tenhle dárek si právě vybral někdo jiný. Vyber si prosím jiný.");
+    else if(!d.ok) toast("Něco se nepovedlo. Zkus to prosím znovu.");
+    else if(action==="reserve"){ toast("Hotovo! Dárek je zarezervovaný pro tebe."); }
+    else toast("Rezervace je zrušená.");
+  }catch(e){ toast("Nepodařilo se uložit. Zkontroluj internet a zkus to znovu."); }
+  askRow=null; busyRow=null; render();
+}
+
+load();
+setInterval(()=>{ if(document.visibilityState==="visible") load(); }, 20000);
+document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible") load(); });
+</script>
+</body>
+</html>
